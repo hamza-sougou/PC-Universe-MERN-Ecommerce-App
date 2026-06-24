@@ -10,6 +10,9 @@ lerna-debug.log*
 .env
 /server/.env
 
+# Images des produits
+/server/uploads
+
 /client/node_modules
 /server/node_modules
 node_modules
