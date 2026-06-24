@@ -1,38 +1,35 @@
 .dropdownProfile {
   z-index: 9999;
   position: absolute;
-  top: 4.5rem;
-  right: 15rem;
-  width: 220px;
-  padding: 10px;
-  background: #fff;
-  border: 2px solid gray;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 240px;
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 20px rgba(16, 24, 40, 0.08);
+  color: #111827;
 }
 
 .dropdownProfile::before {
   content: "";
   position: absolute;
-  top: -2.38rem;
-  right: 1.45rem;
-  width: 35px;
-  height: 38px;
-
-  background: none;
-  border-top: 2px solid gray;
-  border-left: 2px solid gray;
-  border-right: 2px solid gray;
-  border-bottom: 2px solid #fff;
+  top: -8px;
+  right: 16px;
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  transform: rotate(45deg);
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: -2px -2px 4px rgba(16, 24, 40, 0.02);
 }
 
-@media screen and (min-width: 475px) and (max-width: 979px) {
+@media screen and (max-width: 979px) {
   .dropdownProfile {
-    z-index: 9999;
-    position: absolute;
-    top: 4.5rem;
-    right: 11rem;
-    width: 220px;
-    padding: 10px;
-    background: #fff;
-    border: 1px solid gray;
+    right: 8px;
+    width: 200px;
+    top: calc(100% + 6px);
   }
 }

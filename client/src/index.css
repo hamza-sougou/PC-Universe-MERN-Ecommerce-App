@@ -2,7 +2,111 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+
+  --secondary: #ec4899;
+  --accent: #f97316;
+
+  --card: rgba(255, 255, 255, 0.75);
+  --border: rgba(15, 23, 42, 0.08);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: #fffefc;
-  color: black;
+  background:
+    radial-gradient(circle at top left, rgba(99, 102, 241, 0.12), transparent 40%),
+    radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.08), transparent 35%),
+    var(--background);
+
+  color: var(--foreground);
+  min-height: 100vh;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Sélection de texte */
+::selection {
+  background: rgba(99, 102, 241, 0.25);
+  color: #111827;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #eef2ff;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    to bottom,
+    #6366f1,
+    #ec4899
+  );
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    to bottom,
+    #4f46e5,
+    #db2777
+  );
+}
+
+/* Glass card utility */
+@layer components {
+  .glass {
+    background: var(--card);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--border);
+    box-shadow:
+      0 10px 30px rgba(15, 23, 42, 0.08);
+  }
+
+  .gradient-text {
+    background: linear-gradient(
+      135deg,
+      #6366f1,
+      #ec4899
+    );
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  .primary-btn {
+    @apply px-6 py-3 rounded-xl font-medium transition-all duration-300;
+    background: linear-gradient(
+      135deg,
+      #6366f1,
+      #8b5cf6
+    );
+    color: white;
+    box-shadow:
+      0 8px 25px rgba(99, 102, 241, 0.25);
+  }
+
+  .primary-btn:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 12px 35px rgba(99, 102, 241, 0.35);
+  }
 }

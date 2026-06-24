@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { AiOutlineShoppingCart } from "react-icons/ai";
 import { IoCloseOutline } from "react-icons/io5";
 import { FiUser } from "react-icons/fi";
@@ -11,7 +11,6 @@ import FavoritesCount from "../Products/FavoritesCount";
 import pcu_logo from "../../assets/PCU_logo.svg";
 import { useFetchCategoriesQuery } from "../../redux/api/categoryApiSlice";
 import clsx from "clsx";
-import { useRef } from "react";
 import DropdownProfile from "./DropdownProfile.jsx";
 import { useGetProductsQuery } from "../../redux/api/productApiSlice.js";
 
@@ -19,11 +18,8 @@ const Navigation = () => {
   const { cartItems } = useSelector((state) => state.cart);
   const { data: categories = [] } = useFetchCategoriesQuery();
 
-  // const { userInfo } = useSelector((state) => state.auth);
-
   const [isSideMenuOpen, setMenu] = useState(false);
   const [isHoveringProfile, setHoveringProfile] = useState(false);
-
   const dropdownRef = useRef(null);
 
   const handleMouseEnter = () => setHoveringProfile(true);
@@ -35,7 +31,7 @@ const Navigation = () => {
     { keyword: searchTerm },
     {
       skip: !searchTerm,
-    }
+    },
   );
 
   const handleSearchChange = (e) => {
@@ -43,140 +39,141 @@ const Navigation = () => {
   };
 
   return (
-    <main className="lg:px-[10rem] px-4 bg-white">
-      <nav
-        className="flex  justify-between items-center py-6 pr-[5rem] lg:pr-0"
-        id="navigation-container"
-      >
-        <section className="flex items-center gap-4">
-          <RiMenu2Fill
-            onClick={() => setMenu(true)}
-            className="text-3xl cursor-pointer lg:hidden"
-          />
-          <Link to="/" className="text-4xl">
-            <img src={pcu_logo} className="w-[5rem]" alt="logo" />
-          </Link>
-
-          {/* {userInfo && !userInfo.isAdmin && (
-            <div className="flex gap-3">
-              <div className="h-5 w-5 bg-red-600 rounded-full"></div>
-              <span>UTILISATEUR</span>
-            </div>
-          )}
-
-          {userInfo && userInfo.isAdmin ? (
-            <div className="flex gap-3">
-              <div className="h-5 w-5 bg-green-600 rounded-full"></div>
-              <span>ADMINISTRATEUR</span>
-            </div>
-          ) : (
-            <></>
-          )} */}
-        </section>
-
-        <Link
-          to="/shop"
-          className="h-[5.5rem] bg-[#efecec] absolute left-[50%] translate-x-[-50%] px-5 hidden md:flex items-center"
-        >
-          <div className="text-orange-500 underline font-semibold">
-            Voir la Boutique
-          </div>
-        </Link>
-
-        <div
-          className={clsx(
-            "fixed h-full w-screen lg:hidden bg-black/50 backdrop-blur-sm top-0 right-0 translate-x-full transition-all",
-            isSideMenuOpen && "translate-x-0"
-          )}
-        >
-          <section className="text-black bg-white w-[50%] flex-col absolute left-0 top-0 h-screen p-8 gap-8 z-50 flex">
-            <IoCloseOutline
-              onClick={() => setMenu(false)}
-              className="mt-0 mb-8 text-3xl cursor-pointer"
+    <header className="sticky top-0 z-40 bg-white shadow-sm">
+      <div className="max-w-[1200px] mx-auto px-6 lg:px-10">
+        <nav className="flex items-center justify-between py-4">
+          <div className="flex items-center gap-4">
+            <RiMenu2Fill
+              onClick={() => setMenu(true)}
+              className="text-2xl cursor-pointer lg:hidden text-gray-700"
             />
-            {categories?.map((c) => (
-              <Link key={c._id}>{c.name}</Link>
-            ))}
-          </section>
-        </div>
-
-        <section className="flex items-center mr-0 gap-6  ">
-          {/* DropdownProfile */}
-          <div
-            ref={dropdownRef}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
-            {isHoveringProfile && <DropdownProfile />}
+            <Link to="/" className="flex items-center gap-3">
+              <img src={pcu_logo} className="w-14" alt="PCU logo" />
+            </Link>
           </div>
 
-          <FiUser
-            className="text-3xl"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          />
-
-          <Link to="/favorite" className="flex relative">
-            <div>
-              <GrFavorite className="text-3xl" />
-              <FavoritesCount />
-            </div>
-          </Link>
-
-          <Link to="/cart" className="flex relative">
-            <div>
-              <AiOutlineShoppingCart className="text-3xl" />
-              <span className="hidden nav-item-name mt-[3rem]">Panier</span>
-            </div>
-
-            <div className="absolute left-6 -top-2">
-              {cartItems.length > 0 && (
-                <span>
-                  <span className="px-[0.35rem] py-[0.02rem] text-sm text-white bg-orange-500 rounded-full">
-                    {cartItems.reduce((a, c) => a + c.qty, 0)}
-                  </span>
-                </span>
-              )}
-            </div>
-          </Link>
-        </section>
-      </nav>
-      <hr className="-mx-[10rem]" />
-      <div className="flex items-center justify-between gap-4">
-        <section className="hidden lg:flex w-auto justify-center items-center gap-0">
-          {categories.map((c) => (
-            <Link key={c._id} className="hidden lg:block">
-              <div className="py-2 px-4 hover:bg-black/10 active:bg-black/10 hover:text-orange-500 transition">
-                {c.name}
-              </div>
-            </Link>
-          ))}
-        </section>
-        <input
-          type="text"
-          id="searchBar"
-          value={searchTerm}
-          onChange={handleSearchChange}
-          placeholder="Rechercher des produits..."
-          className="border p-2 "
-        />
-        {searchTerm && !isFetching && searchResults.length > 0 && (
-          <div className="absolute bg-white border w-full mt-1">
-            {searchResults.map((product) => (
+          <div className="hidden lg:flex items-center gap-4">
+            {categories.map((c) => (
               <Link
-                key={product._id}
-                to={`/product/${product._id}`}
-                className="block px-4 py-2 hover:bg-gray-100"
+                key={c._id}
+                to={`/category/${c._id}`}
+                className="px-4 py-2 rounded-md hover:bg-gray-100 text-sm text-gray-700 transition"
               >
-                {product.name}
+                {c.name}
               </Link>
             ))}
           </div>
-        )}
+
+          <div className="flex-1 mx-6 max-w-[540px]">
+            <div className="relative">
+              <input
+                type="text"
+                id="searchBar"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                placeholder="Rechercher des produits..."
+                className="w-full rounded-full border border-gray-200 px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              />
+
+              {searchTerm && !isFetching && searchResults.length > 0 && (
+                <div className="absolute left-0 right-0 bg-white border mt-2 rounded-md shadow-md overflow-hidden z-30">
+                  {searchResults.map((product) => (
+                    <Link
+                      key={product._id}
+                      to={`/product/${product._id}`}
+                      className="block px-4 py-2 hover:bg-gray-50 text-sm text-gray-800"
+                    >
+                      {product.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-5">
+            <div
+              ref={dropdownRef}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              className="relative"
+            >
+              <button className="p-2 rounded-full hover:bg-gray-100 transition">
+                <FiUser className="text-2xl text-gray-700" />
+              </button>
+              {isHoveringProfile && (
+                <div className="absolute right-0">
+                  <DropdownProfile />
+                </div>
+              )}
+            </div>
+
+            <Link
+              to="/favorite"
+              className="relative p-2 rounded-full hover:bg-gray-100 transition"
+            >
+              <GrFavorite className="text-2xl text-gray-700" />
+              <FavoritesCount />
+            </Link>
+
+            <Link
+              to="/cart"
+              className="relative p-2 rounded-full hover:bg-gray-100 transition flex items-center"
+            >
+              <AiOutlineShoppingCart className="text-2xl text-gray-700" />
+              {cartItems.length > 0 && (
+                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-semibold text-white bg-indigo-600 rounded-full">
+                  {cartItems.reduce((a, c) => a + c.qty, 0)}
+                </span>
+              )}
+            </Link>
+          </div>
+        </nav>
       </div>
 
-      <hr className="-mx-[10rem]" />
-    </main>
+      <div
+        className={clsx(
+          "fixed inset-0 bg-black/40 z-40 transition-transform lg:hidden",
+          isSideMenuOpen ? "pointer-events-auto" : "pointer-events-none",
+        )}
+        onClick={() => setMenu(false)}
+      >
+        <aside
+          className={clsx(
+            "absolute left-0 top-0 h-full w-72 bg-white p-6 shadow-lg transform transition-transform",
+            isSideMenuOpen ? "translate-x-0" : "-translate-x-full",
+          )}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between mb-6">
+            <div className="font-semibold">Menu</div>
+            <IoCloseOutline
+              onClick={() => setMenu(false)}
+              className="text-2xl cursor-pointer"
+            />
+          </div>
+          <nav className="flex flex-col gap-3">
+            {categories?.map((c) => (
+              <Link
+                key={c._id}
+                to={`/category/${c._id}`}
+                onClick={() => setMenu(false)}
+                className="py-2 px-3 rounded hover:bg-gray-100"
+              >
+                {c.name}
+              </Link>
+            ))}
+            <Link
+              to="/shop"
+              onClick={() => setMenu(false)}
+              className="mt-4 py-2 px-3 rounded bg-indigo-50 text-indigo-600"
+            >
+              Voir la Boutique
+            </Link>
+          </nav>
+        </aside>
+      </div>
+    </header>
   );
 };
 

@@ -13,17 +13,14 @@ import ProductCard from "./Products/ProductCard";
 const Shop = () => {
   const dispatch = useDispatch();
   const { categories, products, checked, radio } = useSelector(
-    (state) => state.shop
+    (state) => state.shop,
   );
 
   const categoriesQuery = useFetchCategoriesQuery();
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
-  const filteredProductsQuery = useGetFilteredProductsQuery({
-    checked,
-    radio,
-  });
+  const filteredProductsQuery = useGetFilteredProductsQuery({ checked, radio });
 
   useEffect(() => {
     if (!categoriesQuery.isLoading) {
@@ -40,7 +37,7 @@ const Shop = () => {
             const min = minPrice ? parseFloat(minPrice) : 0;
             const max = maxPrice ? parseFloat(maxPrice) : Infinity;
             return price >= min && price <= max;
-          }
+          },
         );
         dispatch(setProducts(filteredProducts));
       }
@@ -56,7 +53,7 @@ const Shop = () => {
 
   const handleBrandClick = (brand) => {
     const productsByBrand = filteredProductsQuery.data?.filter(
-      (product) => product.brand === brand
+      (product) => product.brand === brand,
     );
     dispatch(setProducts(productsByBrand));
   };
@@ -73,18 +70,13 @@ const Shop = () => {
       new Set(
         filteredProductsQuery.data
           ?.map((product) => product.brand)
-          .filter((brand) => brand !== undefined)
-      )
+          .filter((brand) => brand !== undefined),
+      ),
     ),
   ];
 
-  const handleMinPriceChange = (e) => {
-    setMinPrice(e.target.value);
-  };
-
-  const handleMaxPriceChange = (e) => {
-    setMaxPrice(e.target.value);
-  };
+  const handleMinPriceChange = (e) => setMinPrice(e.target.value);
+  const handleMaxPriceChange = (e) => setMaxPrice(e.target.value);
 
   const handleResetFilters = () => {
     setMinPrice("");
@@ -92,109 +84,155 @@ const Shop = () => {
     dispatch(setChecked([]));
   };
 
+  const activeBrand = radio?.[0];
+
   return (
-    <>
-      <div>
-        <div className="flex">
-          <div className="bg-[#efecec] p-3 -mt-3 h-full hidden md:block">
-            <h2 className="h4 text-center py-2 bg-red- rounded-full mb-2">
-              Filtrer par catégorie
-            </h2>
-            <div className="p-5 w-[15rem]">
-              {categories?.map((c) => (
-                <div key={c._id} className="mb-2">
-                  <div className="flex items-center mr-4">
-                    <input
-                      type="checkbox"
-                      id={c._id}
-                      onChange={(e) => handleCheck(e.target.checked, c._id)}
-                      className="w-4 h-4 text-orange-600 bg-grey-100 border-gray-300   
-                      rounded focus:ring-orange-500 focus:ring-2    
-                      "
-                    />
-                    <label
-                      htmlFor={c._id}
-                      className="ml-2 text-sm font-medium  "
-                    >
-                      {c.name}
-                    </label>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <h2 className="h4 text-center py-2  rounded-full mb-2">
-              Filtrer par marque
-            </h2>
-            <div className="p-5">
-              {uniqueBrands?.map((brand) => (
-                <div className="flex items-center mr-4 mb-5" key={brand}>
-                  <input
-                    type="radio"
-                    id={brand}
-                    name="brand"
-                    onChange={() => handleBrandClick(brand)}
-                    className="w-4 h-4 text-orange-400 bg-gray-100 border-gray-300   
-                    focus:ring-orange-500 
-                     focus:ring-2"
-                  />
-                  <label htmlFor={brand} className="ml-2 text-sm font-medium ">
-                    {brand}
-                  </label>
-                </div>
-              ))}
-            </div>
-
-            <h2 className="h4 text-center py-2  rounded-full mb-2">
-              Filtrer par prix
-            </h2>
-            <div className="p-5 w-[15rem]">
+    <div className="flex min-h-screen bg-stone-50">
+      {/* ── Sidebar ── */}
+      <aside className="hidden md:flex flex-col gap-6 w-[220px] min-w-[220px] bg-white border-r border-stone-200 px-5 py-7 sticky top-0 h-screen overflow-y-auto">
+        {/* Catégories */}
+        <div className="flex flex-col gap-2">
+          <span className="text-[11px] font-medium uppercase tracking-widest text-stone-400 mb-1">
+            Catégories
+          </span>
+          {categories?.map((c) => (
+            <label
+              key={c._id}
+              className="flex items-center gap-2.5 py-1 cursor-pointer group"
+            >
               <input
-                type="number"
-                placeholder="Prix minimum"
-                value={minPrice}
-                onChange={handleMinPriceChange}
-                className="w-full px-3 py-2 placeholder-gray-400 border  
-                 rounded-lg focus:outline-none focus:ring focus:ring-orange-600 mb-2"
+                type="checkbox"
+                id={c._id}
+                onChange={(e) => handleCheck(e.target.checked, c._id)}
+                checked={checked.includes(c._id)}
+                className="w-4 h-4 rounded accent-[var(--primary)] cursor-pointer"
               />
-              <input
-                type="number"
-                placeholder="Prix maximum"
-                value={maxPrice}
-                onChange={handleMaxPriceChange}
-                className="w-full px-3 py-2 placeholder-gray-400 border  
-                 rounded-lg focus:outline-none focus:ring focus:ring-orange-600"
-              />
-            </div>
-            <div className="p-5 pt-0">
-              <button
-                className="w-full border-[2px] border-black my-4 py-2 hover:bg-black hover:text-white transition-all"
-                onClick={handleResetFilters}
-              >
-                Réinitialiser
-              </button>
-            </div>
-          </div>
+              <span className="text-[13px] text-stone-500 group-hover:text-stone-800 transition-colors">
+                {c.name}
+              </span>
+            </label>
+          ))}
+        </div>
 
-          <div className="p-3 w-full ">
-            <h2 className="h4 text-center mb-2">
-              {products?.length} produits trouvés
-            </h2>
-            <div className="flex flex-wrap w-full">
-              {products?.length === 0 ? (
-                <Loader />
-              ) : (
-                products?.map((p) => (
-                  <div className="p-3" key={p._id}>
-                    <ProductCard p={p} />
-                  </div>
-                ))
-              )}
-            </div>
+        <div className="h-px bg-stone-100" />
+
+        {/* Marque */}
+        <div className="flex flex-col gap-2">
+          <span className="text-[11px] font-medium uppercase tracking-widest text-stone-400 mb-1">
+            Marque
+          </span>
+          {uniqueBrands?.map((brand) => (
+            <label
+              key={brand}
+              className="flex items-center gap-2.5 py-1 cursor-pointer group"
+            >
+              <input
+                type="radio"
+                name="brand"
+                id={brand}
+                onChange={() => handleBrandClick(brand)}
+                checked={activeBrand === brand}
+                className="w-4 h-4 accent-[var(--primary)] cursor-pointer"
+              />
+              <span className="text-[13px] text-stone-500 group-hover:text-stone-800 transition-colors">
+                {brand}
+              </span>
+            </label>
+          ))}
+        </div>
+
+        <div className="h-px bg-stone-100" />
+
+        {/* Prix */}
+        <div className="flex flex-col gap-2">
+          <span className="text-[11px] font-medium uppercase tracking-widest text-stone-400 mb-1">
+            Prix
+          </span>
+          <div className="flex gap-2">
+            <input
+              type="number"
+              placeholder="Min"
+              value={minPrice}
+              onChange={handleMinPriceChange}
+              className="w-0 flex-1 px-3 py-1.5 text-[13px] bg-stone-50 border border-stone-200 rounded-md text-stone-800 placeholder-stone-400 outline-none focus:border-[var(--primary)] transition-colors"
+            />
+            <input
+              type="number"
+              placeholder="Max"
+              value={maxPrice}
+              onChange={handleMaxPriceChange}
+              className="w-0 flex-1 px-3 py-1.5 text-[13px] bg-stone-50 border border-stone-200 rounded-md text-stone-800 placeholder-stone-400 outline-none focus:border-[var(--primary)] transition-colors"
+            />
           </div>
         </div>
-      </div>
-    </>
+
+        {/* Reset */}
+        <button
+          onClick={handleResetFilters}
+          className="mt-auto w-full py-2 text-[13px] font-medium text-stone-500 border border-stone-200 rounded-md hover:bg-stone-50 hover:text-stone-800 hover:border-stone-300 transition-all"
+        >
+          Réinitialiser les filtres
+        </button>
+      </aside>
+
+      {/* ── Main ── */}
+      <main className="flex-1 min-w-0 px-6 py-7">
+        {/* Header */}
+        <div className="flex flex-wrap items-center gap-3 mb-5">
+          <p className="text-sm text-stone-400 mr-auto">
+            {products?.length ?? 0} produit{products?.length !== 1 ? "s" : ""}{" "}
+            trouvé{products?.length !== 1 ? "s" : ""}
+          </p>
+
+          {/* Active filter tags */}
+          {(checked.length > 0 || activeBrand) && (
+            <div className="flex flex-wrap gap-2 w-full">
+              {checked.map((id) => {
+                const cat = categories?.find((c) => c._id === id);
+                return cat ? (
+                  <span
+                    key={id}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] text-xs font-medium"
+                  >
+                    {cat.name}
+                    <button
+                      onClick={() => handleCheck(false, id)}
+                      aria-label={`Retirer ${cat.name}`}
+                      className="text-[var(--primary)] hover:text-[var(--primary-hover)] text-base leading-none transition-colors"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ) : null;
+              })}
+              {activeBrand && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] text-xs font-medium">
+                  {activeBrand}
+                  <button
+                    onClick={handleResetFilters}
+                    aria-label={`Retirer ${activeBrand}`}
+                    className="text-[var(--primary)] hover:text-[var(--primary-hover)] text-base leading-none transition-colors"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {products?.length === 0 ? (
+            <div className="col-span-full flex justify-center py-16">
+              <Loader />
+            </div>
+          ) : (
+            products?.map((p) => <ProductCard key={p._id} p={p} />)
+          )}
+        </div>
+      </main>
+    </div>
   );
 };
 
