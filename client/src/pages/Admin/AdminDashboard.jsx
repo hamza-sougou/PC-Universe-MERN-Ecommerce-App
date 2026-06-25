@@ -5,13 +5,25 @@ import {
   useGetTotalSalesByDateQuery,
   useGetTotalSalesQuery,
 } from "../../redux/api/orderApiSlice";
-
 import { useState, useEffect } from "react";
 import AdminMenu from "./AdminMenu";
 import OrderList from "./OrderList";
 import Loader from "../../components/Loader";
-import { FaChartColumn } from "react-icons/fa6";
-import { FaCartArrowDown, FaUsers } from "react-icons/fa";
+import { FiTrendingUp, FiUsers, FiShoppingBag } from "react-icons/fi";
+
+const StatCard = ({ icon: Icon, label, value, isLoading }) => (
+  <div className="flex-1 min-w-[160px] bg-white border border-stone-200 rounded-2xl p-5 shadow-sm">
+    <div className="w-9 h-9 flex items-center justify-center rounded-xl bg-[var(--primary)]/10 mb-4">
+      <Icon size={16} className="text-[var(--primary)]" />
+    </div>
+    <p className="text-[11px] uppercase tracking-wide text-stone-400 font-medium mb-1">
+      {label}
+    </p>
+    <p className="text-xl font-semibold text-stone-800">
+      {isLoading ? <Loader /> : value}
+    </p>
+  </div>
+);
 
 const AdminDashboard = () => {
   const { data: sales, isLoading } = useGetTotalSalesQuery();
@@ -21,128 +33,128 @@ const AdminDashboard = () => {
 
   const [state, setState] = useState({
     options: {
-      chart: {
-        type: "line",
+      chart: { type: "bar", toolbar: { show: false }, fontFamily: "inherit" },
+      colors: ["var(--primary)"],
+      plotOptions: {
+        bar: { borderRadius: 6, columnWidth: "50%" },
       },
-      tooltip: {
-        theme: "dark",
-      },
-      colors: ["#ff5a1f"],
-      dataLabels: {
-        enabled: true,
-      },
-      stroke: {
-        curve: "smooth",
-      },
-      title: {
-        text: "Ventes en tendance",
-        align: "left",
-      },
+      dataLabels: { enabled: false },
+      stroke: { show: false },
       grid: {
-        borderColor: "#ccc",
-      },
-      markers: {
-        size: 1,
+        borderColor: "#f1f0ef",
+        strokeDashArray: 4,
+        yaxis: { lines: { show: true } },
+        xaxis: { lines: { show: false } },
       },
       xaxis: {
         categories: [],
-        title: {
-          text: "Date",
-        },
+        axisBorder: { show: false },
+        axisTicks: { show: false },
+        labels: { style: { colors: "#9ca3af", fontSize: "12px" } },
       },
       yaxis: {
-        title: {
-          text: "Ventes",
-        },
+        labels: { style: { colors: "#9ca3af", fontSize: "12px" } },
         min: 0,
       },
-      legend: {
-        position: "top",
-        horizontalAlign: "right",
-        floating: true,
-        offsetY: -25,
-        offsetX: -5,
+      tooltip: {
+        theme: "light",
+        y: {
+          formatter: (val) => `${new Intl.NumberFormat("fr-FR").format(val)} F`,
+        },
       },
+      legend: { show: false },
     },
     series: [{ name: "Ventes", data: [] }],
   });
 
   useEffect(() => {
     if (salesDetail) {
-      console.log(salesDetail);
-      const formattedSalesDate = salesDetail.map((item) => ({
+      const formatted = salesDetail.map((item) => ({
         x: item._id,
         y: item.totalSales,
       }));
-
-      setState((prevState) => ({
-        ...prevState,
+      setState((prev) => ({
+        ...prev,
         options: {
-          ...prevState.options,
+          ...prev.options,
           xaxis: {
-            categories: formattedSalesDate.map((item) => item.x),
+            ...prev.options.xaxis,
+            categories: formatted.map((i) => i.x),
           },
         },
-
-        series: [
-          { name: "Ventes", data: formattedSalesDate.map((item) => item.y) },
-        ],
+        series: [{ name: "Ventes", data: formatted.map((i) => i.y) }],
       }));
     }
   }, [salesDetail]);
 
   return (
-    <>
+    <div className="min-h-screen bg-stone-50">
       <AdminMenu />
 
-      <section className="w-full px-[1rem] lg:px-[10rem] ">
-        <div className="w-full flex flex-col md:flex-row justify-around flex-wrap gap-[3rem]">
-          <div className="flex-1 w-full rounded bg-[#efecec] p-5 mt-5">
-            <div className="font-bold rounded-full w-[50px] h-[50px] bg-orange-500 items-center flex justify-center p-3">
-              <FaChartColumn className="text-white text-xl" />
-            </div>
-
-            <p className="mt-5">Ventes</p>
-            <h1 className="text-xl font-bold">
-              {isLoading ? <Loader /> : sales.totalSales} F CFA
-            </h1>
-          </div>
-          <div className="rounded flex-1 w-full bg-[#efecec] p-5 mt-5">
-            <div className="font-bold rounded-full w-[50px] h-[50px] bg-orange-500 items-center flex justify-center p-3">
-              <FaUsers className="text-white text-xl" />
-            </div>
-
-            <p className="mt-5">Clients</p>
-            <h1 className="text-xl font-bold">
-              {isLoading ? <Loader /> : customers?.length}
-            </h1>
-          </div>
-          <div className="rounded flex-1 w-full bg-[#efecec] p-5 mt-5">
-            <div className="font-bold rounded-full w-[50px] h-[50px] bg-orange-500 items-center flex justify-center p-3">
-              <FaCartArrowDown className="text-white text-xl" />
-            </div>
-
-            <p className="mt-5">Toutes les commandes</p>
-            <h1 className="text-xl font-bold">
-              {isLoading ? <Loader /> : orders?.totalOrders}
-            </h1>
-          </div>
+      <main className="max-w-[1200px] mx-auto px-5 lg:px-10 py-10">
+        {/* Page header */}
+        <div className="mb-8">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--primary)] font-medium mb-1">
+            Administration
+          </p>
+          <h1 className="text-2xl font-semibold text-stone-800">Dashboard</h1>
         </div>
 
-        <div className="mt-[4rem]">
+        {/* Stat cards */}
+        <div className="flex flex-wrap gap-4 mb-8">
+          <StatCard
+            icon={FiTrendingUp}
+            label="Ventes totales"
+            value={`${new Intl.NumberFormat("fr-FR").format(sales?.totalSales ?? 0)} F CFA`}
+            isLoading={isLoading}
+          />
+          <StatCard
+            icon={FiUsers}
+            label="Clients"
+            value={customers?.length ?? 0}
+            isLoading={loading}
+          />
+          <StatCard
+            icon={FiShoppingBag}
+            label="Commandes"
+            value={orders?.totalOrders ?? 0}
+            isLoading={loadingTwo}
+          />
+        </div>
+
+        {/* Chart */}
+        <div className="bg-white border border-stone-200 rounded-2xl shadow-sm p-6 mb-8">
+          <div className="mb-4">
+            <p className="text-[11px] uppercase tracking-wide text-stone-400 font-medium mb-1">
+              Aperçu
+            </p>
+            <h2 className="text-base font-semibold text-stone-800">
+              Ventes en tendance
+            </h2>
+          </div>
           <Chart
             options={state.options}
             series={state.series}
             type="bar"
             width="100%"
+            height={280}
           />
         </div>
 
-        <div className="mt-[4rem]">
+        {/* Orders table */}
+        <div>
+          <div className="mb-4">
+            <p className="text-[11px] uppercase tracking-wide text-stone-400 font-medium mb-1">
+              Suivi
+            </p>
+            <h2 className="text-base font-semibold text-stone-800">
+              Commandes récentes
+            </h2>
+          </div>
           <OrderList />
         </div>
-      </section>
-    </>
+      </main>
+    </div>
   );
 };
 

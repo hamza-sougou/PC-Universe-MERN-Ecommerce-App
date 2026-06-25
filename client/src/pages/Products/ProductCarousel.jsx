@@ -12,102 +12,153 @@ import {
   FaStar,
   FaStore,
 } from "react-icons/fa";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+
+moment.locale("fr");
+
+/* ── Custom arrows ── */
+const PrevArrow = ({ onClick }) => (
+  <button
+    onClick={onClick}
+    className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-white/80 hover:bg-white text-stone-700 shadow-md backdrop-blur-sm transition-all hover:scale-105"
+    aria-label="Précédent"
+  >
+    <FiChevronLeft size={18} />
+  </button>
+);
+
+const NextArrow = ({ onClick }) => (
+  <button
+    onClick={onClick}
+    className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-white/80 hover:bg-white text-stone-700 shadow-md backdrop-blur-sm transition-all hover:scale-105"
+    aria-label="Suivant"
+  >
+    <FiChevronRight size={18} />
+  </button>
+);
+
+const formatPrice = (price) => new Intl.NumberFormat("fr-FR").format(price);
+
+const StatItem = ({ icon: Icon, label, value }) => (
+  <div className="flex items-center gap-2 text-sm text-stone-500">
+    <Icon size={13} className="text-stone-400 shrink-0" />
+    <span className="text-stone-400">{label}</span>
+    <span className="font-medium text-stone-700">{value}</span>
+  </div>
+);
 
 const ProductCarousel = () => {
   const { data: products, isLoading, error } = useGetTopProductsQuery();
 
   const settings = {
-    dots: false,
+    dots: true,
     infinite: true,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-    arrows: true,
     autoplay: true,
     autoplaySpeed: 5000,
+    prevArrow: <PrevArrow />,
+    nextArrow: <NextArrow />,
+    appendDots: (dots) => (
+      <div className="!bottom-4">
+        <ul className="flex justify-center gap-1.5">{dots}</ul>
+      </div>
+    ),
+    customPaging: () => (
+      <div className="w-1.5 h-1.5 rounded-full bg-white/50 hover:bg-white transition-colors" />
+    ),
   };
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("fr-FR").format(price);
-  };
+  if (isLoading) return null;
+  if (error)
+    return (
+      <Message variant="danger">
+        {error?.data?.message || error.message}
+      </Message>
+    );
 
   return (
-    <div className="mb-4 flex w-full">
-      {isLoading ? null : error ? (
-        <Message variant="danger">
-          {error?.data?.message || error.message}
-        </Message>
-      ) : (
-        <Slider
-          {...settings}
-          className="xl:w-[50rem] lg:w-[50rem] md:w-[56rem] sm:w-[40rem] sm:block p-5"
-        >
-          {products.map(
-            ({
-              image,
-              _id,
-              name,
-              price,
-              description,
-              brand,
-              createdAt,
-              numReviews,
-              rating,
-              quantity,
-              countInStock,
-            }) => (
-              <div key={_id}>
+    <div className="w-full max-w-2xl">
+      <Slider
+        {...settings}
+        className="relative rounded-2xl overflow-hidden shadow-lg"
+      >
+        {products.map(
+          ({
+            image,
+            _id,
+            name,
+            price,
+            description,
+            brand,
+            createdAt,
+            numReviews,
+            rating,
+            quantity,
+            countInStock,
+          }) => (
+            <div key={_id} className="outline-none">
+              {/* Image */}
+              <div className="relative h-72 w-full">
                 <img
                   src={image}
                   alt={name}
-                  className="w-full object-cover h-[30rem]"
+                  className="w-full h-full object-cover"
                 />
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
-                <div className="flex justify-between w-[20rem]">
-                  <div className="one ">
-                    <h2>{name}</h2>
-                    <div className="flex items-center justify-center bg-orange-300 text-orange-700 rounded py-1 mt-2 px-2 w-[10rem]">
-                      <p className="font-semibold">
-                        {formatPrice(price)} F CFA
-                      </p>
-                    </div>
-
-                    <br />
-                    <p className="w-[25rem]">
-                      {description.substring(0, 120)}...
-                    </p>
-                  </div>
-                  <div className="flex justify-between w-[20rem]">
-                    <div className="one">
-                      <h1 className="flex items-center mb-6 w-[15rem]">
-                        <FaStore className="mr-2" /> Marque: {brand}
-                      </h1>
-                      <h1 className="flex items-center mb-6 w-[15rem]">
-                        <FaClock className="mr-2" /> Date:{" "}
-                        {moment(createdAt).fromNow()}
-                      </h1>
-                      <h1 className="flex items-center mb-6 w-[8rem]">
-                        <FaStar className="mr-2" /> Avis: {numReviews}
-                      </h1>
-                    </div>
-                    <div className="two">
-                      <h1 className="flex items-center mb-6 w-[5rem]">
-                        <FaStar className="mr-2" /> Note: {Math.round(rating)}
-                      </h1>
-                      <h1 className="flex items-center mb-6 w-[10rem]">
-                        <FaShoppingCart className="mr-2" /> Quantité: {quantity}
-                      </h1>
-                      <h1 className="flex items-center mb-6 w-[10rem]">
-                        <FaBox className="mr-2" /> En Stock: {countInStock}
-                      </h1>
-                    </div>
-                  </div>
+                {/* Price badge over image */}
+                <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-[var(--primary)] text-white text-sm font-semibold shadow">
+                  {formatPrice(price)} F CFA
                 </div>
               </div>
-            )
-          )}
-        </Slider>
-      )}
+
+              {/* Info panel */}
+              <div className="bg-white px-6 py-5">
+                <div className="flex items-start justify-between gap-4 mb-3">
+                  <div>
+                    <h2 className="text-base font-semibold text-stone-800 leading-snug">
+                      {name}
+                    </h2>
+                    <p className="text-xs text-stone-400 mt-0.5 flex items-center gap-1">
+                      <FaStore size={10} /> {brand}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 bg-[var(--light-bg)] text-[var(--primary)] px-2.5 py-1 rounded-full text-xs font-semibold shrink-0">
+                    <FaStar size={10} />
+                    {Math.round(rating)} / 5
+                  </div>
+                </div>
+
+                <p className="text-[13px] text-stone-500 leading-relaxed mb-4 line-clamp-2">
+                  {description}
+                </p>
+
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2 pt-4 border-t border-stone-100">
+                  <StatItem
+                    icon={FaClock}
+                    label="Ajouté"
+                    value={moment(createdAt).fromNow()}
+                  />
+                  <StatItem icon={FaStar} label="Avis" value={numReviews} />
+                  <StatItem
+                    icon={FaShoppingCart}
+                    label="Quantité"
+                    value={quantity}
+                  />
+                  <StatItem
+                    icon={FaBox}
+                    label="En stock"
+                    value={countInStock}
+                  />
+                </div>
+              </div>
+            </div>
+          ),
+        )}
+      </Slider>
     </div>
   );
 };

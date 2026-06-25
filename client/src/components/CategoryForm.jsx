@@ -6,36 +6,32 @@ const CategoryForm = ({
   handleDelete,
 }) => {
   return (
-    <div className="p-3">
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <input
-          type="text"
-          className="py-3 px-4 rounded w-full border border-orange-400 focus:border-none focus:ring focus:ring-orange-500 transition-all"
-          placeholder="Nom de la nouvelle catégorie"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
-        <div className="flex justify-between">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <input
+        type="text"
+        className="w-full px-4 py-2.5 text-sm text-stone-800 bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 transition-all placeholder-stone-400"
+        placeholder="Nom de la catégorie"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+      />
+      <div className="flex items-center justify-between gap-3">
+        <button
+          type="submit"
+          className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-sm font-semibold transition-colors"
+        >
+          {buttonText}
+        </button>
+        {handleDelete && (
           <button
-            className="bg-orange-500 text-white px-4 py-2 rounded 
-          hover:bg-orange-700 focus:outline-none focus:ring-2 
-          focus:ring-orange-500 focus:ring-opacity-50 transition-all"
+            type="button"
+            onClick={handleDelete}
+            className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-red-200 text-red-600 hover:bg-red-50 text-sm font-semibold transition-colors"
           >
-            {buttonText}
+            Supprimer
           </button>
-          {handleDelete && (
-            <button
-              onClick={handleDelete}
-              className="bg-red-500 text-white py-2 px-4 rounded
-                 hover:bg-red-700 focus:outline-none focus:ring-2
-                  focus:ring-red-500 focus:ring-opcity-50"
-            >
-              Supprimer
-            </button>
-          )}
-        </div>
-      </form>
-    </div>
+        )}
+      </div>
+    </form>
   );
 };
 

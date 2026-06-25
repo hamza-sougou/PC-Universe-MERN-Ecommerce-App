@@ -22,7 +22,8 @@ const HeartIcon = ({ product }) => {
     dispatch(setFavorites(favoritesFromLocalStorage));
   }, []);
 
-  const toggleFavorites = () => {
+  const toggleFavorites = (e) => {
+    e.stopPropagation();
     if (isFavorite) {
       dispatch(removeFromFavorites(product));
       removeFavoriteFromLocalStorage(product._id);
@@ -33,15 +34,17 @@ const HeartIcon = ({ product }) => {
   };
 
   return (
-    <div className="absolute top-0 right-3  w-[40px] flex items-center justify-center h-[40px] cursor-pointer">
-      <div onClick={toggleFavorites} className=" cursor-pointer">
-        {isFavorite ? (
-          <FaHeart className="text-orange-500" />
-        ) : (
-          <FaRegHeart className="text-orange-500" />
-        )}
-      </div>
-    </div>
+    <button
+      type="button"
+      onClick={toggleFavorites}
+      className="absolute top-4 right-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-[var(--primary)] shadow-md transition hover:scale-105"
+    >
+      {isFavorite ? (
+        <FaHeart className="text-lg" />
+      ) : (
+        <FaRegHeart className="text-lg" />
+      )}
+    </button>
   );
 };
 

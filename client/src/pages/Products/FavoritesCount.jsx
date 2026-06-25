@@ -1,17 +1,14 @@
 import { useSelector } from "react-redux";
 
 const FavoritesCount = () => {
-  const favorites = useSelector((state) => state.favorites);
-  const favoriteCount = favorites.length;
+  const count = useSelector((state) => state.favorites.length);
+
+  if (count === 0) return null;
 
   return (
-    <div className="absolute left-5 -top-2">
-      {favoriteCount > 0 && (
-        <span className="px-[5px] py-0 text-sm text-white bg-orange-500 rounded-full">
-          {favoriteCount}
-        </span>
-      )}
-    </div>
+    <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 flex items-center justify-center px-1 text-[10px] font-bold text-white bg-[var(--primary)] rounded-full leading-none">
+      {count > 99 ? "99+" : count}
+    </span>
   );
 };
 

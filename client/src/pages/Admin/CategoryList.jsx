@@ -5,7 +5,6 @@ import {
   useDeleteCategoryMutation,
   useFetchCategoriesQuery,
 } from "../../redux/api/categoryApiSlice";
-
 import { toast } from "react-toastify";
 import CategoryForm from "../../components/CategoryForm";
 import Modal from "../../components/Modal";
@@ -24,12 +23,10 @@ const CategoryList = () => {
 
   const handleCreateCategory = async (e) => {
     e.preventDefault();
-
     if (!name) {
       toast.error("Nom de la catégorie requis");
       return;
     }
-
     try {
       const result = await createCategory({ name }).unwrap();
       if (result.error) {
@@ -46,20 +43,15 @@ const CategoryList = () => {
 
   const handleUpdateCategory = async (e) => {
     e.preventDefault();
-
     if (!updatingName) {
       toast.error("Nom de la catégorie requis");
       return;
     }
-
     try {
       const result = await updateCategory({
         categoryId: selectedCategory._id,
-        updatedCategory: {
-          name: updatingName,
-        },
+        updatedCategory: { name: updatingName },
       }).unwrap();
-
       if (result.error) {
         toast.error(result.error);
       } else {
@@ -76,7 +68,6 @@ const CategoryList = () => {
   const handleDeleteCategory = async () => {
     try {
       const result = await deleteCategory(selectedCategory._id).unwrap();
-
       if (result.error) {
         toast.error(result.error);
       } else {
@@ -91,47 +82,81 @@ const CategoryList = () => {
   };
 
   return (
-    <div className="px-[1rem] md:px-[10rem] flex flex-col md:flex-row">
+    <div className="min-h-screen bg-stone-50">
       <AdminMenu />
-      <div className="w-full p-3">
-        <div className="h-12">Gestion des Catégories</div>
-        <CategoryForm
-          value={name}
-          setValue={setName}
-          handleSubmit={handleCreateCategory}
-        />
-        <br />
-        <hr />
 
-        <div className="flex flex-wrap">
-          {categories?.map((category) => (
-            <div key={category._id}>
-              <button
-                className="border border-orange-500 text-orange-500 py-2 px-4 rounded m-3 hover:bg-orange-500 hover:text-white focus:outline-none foucs:ring-2 focus:ring-orange-500 focus:ring-opacity-50 transition-all"
-                onClick={() => {
-                  {
+      <main className="max-w-2xl mx-auto px-5 py-10">
+        {/* Page header */}
+        <div className="mb-8">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--primary)] font-medium mb-1">
+            Administration
+          </p>
+          <h1 className="text-2xl font-semibold text-stone-800">
+            Gestion des catégories
+          </h1>
+        </div>
+
+        {/* Create form */}
+        <div className="bg-white border border-stone-200 rounded-2xl shadow-sm p-6 mb-6">
+          <h2 className="text-sm font-semibold text-stone-700 mb-4">
+            Nouvelle catégorie
+          </h2>
+          <CategoryForm
+            value={name}
+            setValue={setName}
+            handleSubmit={handleCreateCategory}
+            buttonText="Créer"
+          />
+        </div>
+
+        {/* Category list */}
+        <div className="bg-white border border-stone-200 rounded-2xl shadow-sm p-6">
+          <h2 className="text-sm font-semibold text-stone-700 mb-4">
+            Catégories existantes
+            <span className="ml-2 text-xs font-normal text-stone-400">
+              ({categories?.length ?? 0})
+            </span>
+          </h2>
+
+          {categories?.length === 0 ? (
+            <p className="text-sm text-stone-400 text-center py-6">
+              Aucune catégorie pour l'instant.
+            </p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {categories?.map((category) => (
+                <button
+                  key={category._id}
+                  onClick={() => {
                     setModalVisible(true);
                     setSelectedCategory(category);
                     setUpdatingName(category.name);
-                  }
-                }}
-              >
-                {category.name}
-              </button>
+                  }}
+                  className="px-4 py-1.5 rounded-full text-sm font-medium border border-stone-200 text-stone-600 bg-stone-50 hover:border-[var(--primary)] hover:text-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all"
+                >
+                  {category.name}
+                </button>
+              ))}
             </div>
-          ))}
+          )}
         </div>
+      </main>
 
-        <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
+      {/* Edit modal */}
+      <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
+        <div className="p-1">
+          <h3 className="text-base font-semibold text-stone-800 mb-4">
+            Modifier « {selectedCategory?.name} »
+          </h3>
           <CategoryForm
             value={updatingName}
-            setValue={(value) => setUpdatingName(value)}
+            setValue={setUpdatingName}
             handleSubmit={handleUpdateCategory}
-            buttonText="Modifier"
+            buttonText="Enregistrer"
             handleDelete={handleDeleteCategory}
           />
-        </Modal>
-      </div>
+        </div>
+      </Modal>
     </div>
   );
 };
