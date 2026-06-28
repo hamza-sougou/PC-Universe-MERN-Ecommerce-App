@@ -208,6 +208,14 @@ const filterProducts = asyncHandler(async (req, res) => {
   }
 });
 
+const fetchProductsByCategory = asyncHandler(async (req, res) => {
+  const products = await Product.find({ category: req.params.categoryId })
+    .populate("category", "name")
+    .sort({ createdAt: -1 });
+ 
+  res.json(products);
+});
+
 export {
   addProduct,
   updateProductDetails,
@@ -219,4 +227,5 @@ export {
   fetchTopProducts,
   fetchNewProducts,
   filterProducts,
+  fetchProductsByCategory,
 };

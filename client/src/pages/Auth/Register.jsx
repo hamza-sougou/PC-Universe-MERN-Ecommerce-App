@@ -5,11 +5,12 @@ import Loader from "../../components/Loader";
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { toast } from "react-toastify";
 import { useRegisterMutation } from "../../redux/api/usersApiSlice";
-
-import { IoMdEye, IoMdEyeOff } from "react-icons/io";
-
-import pcu_logo from "../../assets/pcu_logo.svg";
+import { FiEye, FiEyeOff, FiArrowRight } from "react-icons/fi";
+import logo from "../../assets/logo.svg";
 import PasswordStrengthMeter from "../../components/PasswordStrengthMeter";
+
+const inputClass =
+  "w-full px-4 py-3 text-sm text-stone-800 bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 transition-all placeholder-stone-400";
 
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -20,129 +21,164 @@ const Register = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const [register, { isLoading }] = useRegisterMutation();
   const { userInfo } = useSelector((state) => state.auth);
-
   const { search } = useLocation();
-
-  const sp = new URLSearchParams(search);
-
-  const redirect = sp.get("redirect") || "/";
+  const redirect = new URLSearchParams(search).get("redirect") || "/";
 
   useEffect(() => {
-    if (userInfo) {
-      navigate(redirect);
-    }
+    if (userInfo) navigate(redirect);
   }, [navigate, redirect, userInfo]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
-
     if (password !== confirmPassword) {
       toast.error("Les mots de passe ne sont pas identiques");
-    } else {
-      try {
-        const res = await register({ username, email, password }).unwrap();
-        dispatch(setCredentials({ ...res }));
-        navigate(redirect);
-        toast.success(`Bienvenue ${res.username} !`);
-      } catch (err) {
-        console.log(err);
-        toast.error(err.data.message);
-      }
+      return;
+    }
+    try {
+      const res = await register({ username, email, password }).unwrap();
+      dispatch(setCredentials({ ...res }));
+      navigate(redirect);
+      toast.success(`Bienvenue ${res.username} !`);
+    } catch (err) {
+      toast.error(err.data?.message || err.message);
     }
   };
 
   return (
-    <div className="flex bg-white h-screen w-full pt-[10rem] items-center justify-center">
-      <div className="flex flex-col w-full lg:w-1/3 bg-orange-50 p-[3rem] justify-between gap-6">
-        <div className="flex w-full h-[5rem] justify-center">
-          <img src={pcu_logo} alt="logo" />
-        </div>
-        <div className="w-full flex flex-col">
-          <h2 className="text-3xl font-semibold mb-2">S&apos;inscrire</h2>
-          <h3 className="mb-2">
-            <i>Bienvenue chez PC Universe</i>
-          </h3>
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center px-5 py-12">
+      <div className="w-full max-w-sm">
+        {/* Logo */}
+        <div className="flex justify-center mb-8">
+          <img src={logo} alt="Jayma" className="h-10" />
         </div>
 
-        <form action="" onSubmit={submitHandler}>
-          <div className="w-full flex flex-col">
-            <input
-              type="text"
-              id="name"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full py-4 my-2 bg-transparent text-black border-b focus:border-b-2
-             border-orange-500 focus:border-orange-500 border-t-0 border-l-0 border-r-0
-              outline-none focus:outline-none  focus:ring-0"
-              placeholder="Nom"
-            />
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full py-4 my-2 bg-transparent text-black border-b focus:border-b-2
-             border-orange-500 focus:border-orange-500 border-t-0 border-l-0 border-r-0
-              outline-none focus:outline-none  focus:ring-0"
-              placeholder="Adresse Email"
-            />
-            <div className="relative">
-              <input
-                type={isVisiblePassword ? "text" : "password"}
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full py-4 my-2 bg-transparent text-black border-b focus:border-b-2
-             border-orange-500 focus:border-orange-500 border-t-0 border-l-0 border-r-0
-              outline-none focus:outline-none  focus:ring-0"
-                placeholder="Mot de passe"
-              />
-              <div
-                onClick={() => setVisiblePassword(!isVisiblePassword)}
-                className="absolute text-2xl top-[1.6rem] right-4"
-              >
-                {isVisiblePassword ? <IoMdEye /> : <IoMdEyeOff />}
-              </div>
-              <input
-                type="password"
-                id="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full py-4 my-2 bg-transparent text-black border-b focus:border-b-2
-             border-orange-500 focus:border-orange-500 border-t-0 border-l-0 border-r-0
-              outline-none focus:outline-none  focus:ring-0"
-                placeholder="Confirmer le mot de passe"
-              />
-              <PasswordStrengthMeter password={password} />
-            </div>
-          </div>
-
-          <div className="w-full flex flex-col my-4">
-            <button
-              disabled={isLoading}
-              type="submit"
-              className="w-full bg-black text-white p-4 text-center flex items-center justify-center"
-            >
-              {isLoading ? "Inscription..." : "S'inscrire"}
-            </button>
-            {isLoading && <Loader />}
-          </div>
-        </form>
-
-        <div className="w-full flex items-center justify-center">
-          <p>
-            Déja inscrit?{" "}
-            <Link
-              to="/login"
-              className="text-orange-500 hover:underline underline-offset-2 cursor-pointer"
-            >
-              Connectez-vous!
-            </Link>
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-semibold text-stone-800 mb-1">
+            Créer un compte
+          </h1>
+          <p className="text-sm text-stone-400">
+            Bienvenue chez Jayma. C'est gratuit !
           </p>
         </div>
+
+        {/* Card */}
+        <div className="bg-white border border-stone-200 rounded-2xl shadow-sm p-6">
+          <form onSubmit={submitHandler} className="flex flex-col gap-4">
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wide text-stone-400 mb-1.5">
+                Nom d'utilisateur
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className={inputClass}
+                placeholder="johndoe"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wide text-stone-400 mb-1.5">
+                Adresse email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={inputClass}
+                placeholder="vous@exemple.com"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wide text-stone-400 mb-1.5">
+                Mot de passe
+              </label>
+              <div className="relative">
+                <input
+                  type={isVisiblePassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={inputClass + " pr-12"}
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setVisiblePassword(!isVisiblePassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors"
+                >
+                  {isVisiblePassword ? (
+                    <FiEyeOff size={16} />
+                  ) : (
+                    <FiEye size={16} />
+                  )}
+                </button>
+              </div>
+              <PasswordStrengthMeter password={password} />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wide text-stone-400 mb-1.5">
+                Confirmer le mot de passe
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className={`${inputClass} ${
+                  confirmPassword && confirmPassword !== password
+                    ? "border-red-300 focus:border-red-400 focus:ring-red-200"
+                    : confirmPassword && confirmPassword === password
+                      ? "border-emerald-300 focus:border-emerald-400 focus:ring-emerald-200"
+                      : ""
+                }`}
+                placeholder="••••••••"
+                required
+              />
+              {confirmPassword && confirmPassword !== password && (
+                <p className="text-xs text-red-500 mt-1.5">
+                  Les mots de passe ne correspondent pas
+                </p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-sm font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+            >
+              {isLoading ? (
+                "Inscription..."
+              ) : (
+                <>
+                  Créer mon compte <FiArrowRight size={14} />
+                </>
+              )}
+            </button>
+
+            {isLoading && (
+              <div className="flex justify-center">
+                <Loader />
+              </div>
+            )}
+          </form>
+        </div>
+
+        <p className="text-center text-sm text-stone-400 mt-5">
+          Déjà inscrit ?{" "}
+          <Link
+            to={`/login?redirect=${redirect}`}
+            className="text-[var(--primary)] font-medium hover:underline"
+          >
+            Connectez-vous
+          </Link>
+        </p>
       </div>
     </div>
   );

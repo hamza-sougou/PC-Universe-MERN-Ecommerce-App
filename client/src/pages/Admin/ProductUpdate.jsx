@@ -10,29 +10,33 @@ import { useFetchCategoriesQuery } from "../../redux/api/categoryApiSlice";
 import AdminMenu from "./AdminMenu";
 import { toast } from "react-toastify";
 
+const inputClass =
+  "w-full px-4 py-2.5 text-sm text-stone-800 bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 transition-all placeholder-stone-400";
+
+const labelClass =
+  "block text-xs font-medium uppercase tracking-wide text-stone-400 mb-1.5";
+
 const ProductUpdate = () => {
   const params = useParams();
-  const { data: productData } = useGetProductByIdQuery(params._id);
-  const [image, setImage] = useState(productData?.image || "");
-  const [name, setName] = useState(productData?.name || "");
-  const [description, setDescription] = useState(
-    productData?.description || ""
-  );
-  const [price, setPrice] = useState(productData?.price || "");
-  const [quantity, setQuantity] = useState(productData?.quantity || "");
-  const [category, setCategory] = useState(productData?.category || "");
-  const [brand, setBrand] = useState(productData?.brand || "");
-  const [stock, setStock] = useState(productData?.countInStock);
-
   const navigate = useNavigate();
 
+  const { data: productData } = useGetProductByIdQuery(params._id);
   const { data: categories = [] } = useFetchCategoriesQuery();
   const [uploadProductImage] = useUploadProductImageMutation();
   const [updateProduct] = useUpdateProductMutation();
   const [deleteProduct] = useDeleteProductMutation();
 
+  const [image, setImage] = useState("");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [category, setCategory] = useState("");
+  const [brand, setBrand] = useState("");
+  const [stock, setStock] = useState("");
+
   useEffect(() => {
-    if (productData && productData._id) {
+    if (productData?._id) {
       setName(productData.name || "");
       setDescription(productData.description || "");
       setPrice(productData.price || "");
@@ -49,16 +53,15 @@ const ProductUpdate = () => {
     formData.append("image", e.target.files[0]);
     try {
       const res = await uploadProductImage(formData).unwrap();
-      toast.success("Élément téléversé avec succès");
+      toast.success("Image téléversée avec succès");
       setImage(res.image);
-    } catch (error) {
+    } catch {
       toast.error("Échec du téléversement");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const formData = new FormData();
       formData.append("image", image);
@@ -71,7 +74,6 @@ const ProductUpdate = () => {
       formData.append("countInStock", stock);
 
       const data = await updateProduct({ productId: params._id, formData });
-
       if (data?.error) {
         toast.error(data.error);
       } else {
@@ -80,171 +82,236 @@ const ProductUpdate = () => {
       }
     } catch (err) {
       console.error(err);
-      toast.error("Échec de la mise à jour du produit. Veuillez réessayer.");
+      toast.error("Échec de la mise à jour. Veuillez réessayer.");
     }
   };
 
   const handleDelete = async () => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce produit ?"))
+      return;
     try {
-      let answer = window.confirm(
-        "Êtes-vous sûr de vouloir supprimer ce produit ?"
-      );
-
-      if (!answer) return;
-
       const { data } = await deleteProduct(params._id);
-
       toast.success(`${data.name} a été supprimé`);
       navigate("/admin/allproductslist");
     } catch (err) {
-      console.log(err);
+      console.error(err);
       toast.error("Échec de la suppression. Veuillez réessayer.");
     }
   };
 
   return (
-    <div className="container xl:mx-[9rem] sm:mx-[0]">
-      <div className="flex flex-col md:flex-row">
-        <AdminMenu />
-        <div className="md:w-3/4 p-3">
-          <div className="h-12">Créer un Produit</div>
+    <div className="min-h-screen bg-stone-50">
+      <AdminMenu />
 
-          {image && (
-            <div className="text-center">
-              <img
-                src={image}
-                alt="product"
-                className="block mx-auto max-h-[200px]"
-              />
-            </div>
-          )}
+      <main className="max-w-3xl mx-auto px-5 py-10">
+        {/* Header */}
+        <div className="mb-8">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--primary)] font-medium mb-1">
+            Administration
+          </p>
+          <h1 className="text-2xl font-semibold text-stone-800">
+            Modifier le produit
+          </h1>
+        </div>
 
-          <div className="mb-3 p-3">
-            <label className="border px-4 block w-full text-center rounded cursor-pointer font-bold py-11 border-orange-400 focus:border-none focus:ring focus:ring-orange-500 transition-all">
-              {image ? image.name : "Téléverser un image"}
-              <input
-                type="file"
-                name="image"
-                accept="image/*"
-                onChange={uploadFileHandler}
-                className={!image ? "hidden" : ""}
-              />
-            </label>
-          </div>
-          <div className="p-3 flex flex-col w-full">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1 w-full ">
-                <label htmlFor="name">Nom</label>
-                <br />
-                <input
-                  type="text"
-                  name="name"
-                  className="p-4 mb-3 w-full border rounded border-orange-400 focus:border-none focus:ring focus:ring-orange-500 transition-all"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+        <div className="bg-white border border-stone-200 rounded-2xl shadow-sm p-6 flex flex-col gap-6">
+          {/* Image upload */}
+          <div>
+            <label className={labelClass}>Image du produit</label>
+            {image ? (
+              <div className="relative group rounded-xl overflow-hidden border border-stone-200 bg-stone-100">
+                <img
+                  src={image}
+                  alt="Aperçu"
+                  className="w-full max-h-56 object-cover"
                 />
+                <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                  <span className="text-white text-sm font-medium">
+                    Changer l'image
+                  </span>
+                  <input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    onChange={uploadFileHandler}
+                    className="hidden"
+                  />
+                </label>
               </div>
-              <div className="flex-1 w-full ">
-                <label htmlFor="price">Prix</label>
-                <br />
-                <input
-                  type="number"
-                  name="price"
-                  className=" p-4 mb-3 w-full border rounded border-orange-400 focus:border-none focus:ring focus:ring-orange-500 transition-all"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col md:flex-row w-full gap-4">
-              <div className="flex-1 w-full">
-                <label htmlFor="quantity">Quantité</label>
-                <br />
-                <input
-                  type="number"
-                  name="quantity"
-                  className="p-4 mb-3 border rounded w-full border-orange-400 focus:border-none focus:ring focus:ring-orange-500 transition-all"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                />
-              </div>
-              <div className="flex-1 w-full">
-                <label htmlFor="brand">Marque</label>
-                <br />
-                <input
-                  type="text"
-                  name="brand"
-                  className=" p-4 mb-3 border rounded w-full border-orange-400 focus:border-none focus:ring focus:ring-orange-500 transition-all"
-                  value={brand}
-                  onChange={(e) => setBrand(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="flex w-full">
-              <div className="flex-1">
-                <label htmlFor="desc">Description</label>
-                <textarea
-                  type="text"
-                  name="desc"
-                  className="p-2 mb-3 border rounded w-full border-orange-400 focus:border-none focus:ring focus:ring-orange-500 transition-all"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                ></textarea>
-              </div>
-            </div>
-
-            <div className="flex flex-col md:flex-row w-full gap-4">
-              <div className="flex-1 w-full">
-                <label htmlFor="stock">Quantité en Stock</label>
-                <br />
-                <input
-                  type="text"
-                  name="stock"
-                  className="p-4 mb-3 w-full border rounded border-orange-400 focus:border-none focus:ring focus:ring-orange-500 transition-all"
-                  value={stock}
-                  onChange={(e) => setStock(e.target.value)}
-                />
-              </div>
-              <div className="flex-1 w-full">
-                <label htmlFor="">Catégorie</label>
-                <br />
-                <select
-                  placeholder="Choisir une catégorie"
-                  className="p-4 mb-3 w-full border rounded border-orange-400 focus:border-none focus:ring focus:ring-orange-500 transition-all"
-                  onChange={(e) => setCategory(e.target.value)}
-                  defaultValue=""
+            ) : (
+              <label className="flex flex-col items-center justify-center gap-2 w-full py-10 border-2 border-dashed border-stone-200 rounded-xl cursor-pointer hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 transition-all">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-stone-400"
                 >
-                  <option value="" disabled>
-                    Choisir une catégorie
-                  </option>
-                  {categories?.map((c) => (
-                    <option key={c._id} value={c._id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                <span className="text-sm text-stone-400">
+                  Cliquer pour téléverser une image
+                </span>
+                <input
+                  type="file"
+                  name="image"
+                  accept="image/*"
+                  onChange={uploadFileHandler}
+                  className="hidden"
+                />
+              </label>
+            )}
+          </div>
+
+          <div className="h-px bg-stone-100" />
+
+          {/* Fields */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="name" className={labelClass}>
+                Nom
+              </label>
+              <input
+                id="name"
+                type="text"
+                className={inputClass}
+                placeholder="Ex : RTX 4090"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </div>
 
             <div>
-              <button
-                onClick={handleSubmit}
-                className="py-2 px-10 mt-5 rounded text-lg font-semibold bg-green-500 mr-6 text-white"
+              <label htmlFor="price" className={labelClass}>
+                Prix (F CFA)
+              </label>
+              <input
+                id="price"
+                type="number"
+                className={inputClass}
+                placeholder="Ex : 850000"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="quantity" className={labelClass}>
+                Quantité
+              </label>
+              <input
+                id="quantity"
+                type="number"
+                className={inputClass}
+                placeholder="Ex : 10"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="brand" className={labelClass}>
+                Marque
+              </label>
+              <input
+                id="brand"
+                type="text"
+                className={inputClass}
+                placeholder="Ex : NVIDIA"
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="stock" className={labelClass}>
+                Quantité en stock
+              </label>
+              <input
+                id="stock"
+                type="number"
+                className={inputClass}
+                placeholder="Ex : 5"
+                value={stock}
+                onChange={(e) => setStock(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="category" className={labelClass}>
+                Catégorie
+              </label>
+              <select
+                id="category"
+                className={inputClass}
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
               >
-                Mettre à jour
-              </button>
-              <button
-                onClick={handleDelete}
-                className="py-2 px-10 mt-5 rounded text-lg font-semibold bg-orange-500 text-white"
-              >
-                Supprimer
-              </button>
+                <option value="" disabled>
+                  Choisir une catégorie
+                </option>
+                {categories.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
+
+          <div>
+            <label htmlFor="description" className={labelClass}>
+              Description
+            </label>
+            <textarea
+              id="description"
+              rows={4}
+              className={inputClass}
+              placeholder="Décrivez le produit..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+
+          <div className="h-px bg-stone-100" />
+
+          {/* Actions */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={handleDelete}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-red-200 text-red-600 hover:bg-red-50 text-sm font-semibold transition-colors"
+            >
+              Supprimer le produit
+            </button>
+            <button
+              onClick={handleSubmit}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-sm font-semibold transition-colors"
+            >
+              Enregistrer les modifications
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

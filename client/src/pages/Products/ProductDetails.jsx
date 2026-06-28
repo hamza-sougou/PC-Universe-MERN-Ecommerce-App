@@ -9,21 +9,31 @@ import {
 import Loader from "../../components/Loader";
 import Message from "../../components/Message";
 import {
-  FaBox,
-  FaClock,
-  FaShoppingCart,
-  FaStar,
-  FaStore,
-} from "react-icons/fa";
+  FiArrowLeft,
+  FiShoppingCart,
+  FiPackage,
+  FiClock,
+  FiStar,
+} from "react-icons/fi";
+import { FaStore } from "react-icons/fa";
 import moment from "moment";
-
-import "moment/locale/fr-ch";
+import "moment/locale/fr";
 import HeartIcon from "./HeartIcon";
 import Ratings from "./Ratings";
 import ProductTabs from "./ProductTabs";
 import { addToCart } from "../../redux/features/cart/cartSlice";
 
-moment.locale("fr-ch");
+moment.locale("fr");
+
+const formatPrice = (price) => new Intl.NumberFormat("fr-FR").format(price);
+
+const MetaItem = ({ icon: Icon, label, value }) => (
+  <div className="flex items-center gap-2 text-sm">
+    <Icon size={14} className="text-stone-400 shrink-0" />
+    <span className="text-stone-400">{label}</span>
+    <span className="font-medium text-stone-700">{value}</span>
+  </div>
+);
 
 const ProductDetails = () => {
   const { id: productId } = useParams();
@@ -40,27 +50,16 @@ const ProductDetails = () => {
     refetch,
     error,
   } = useGetProductDetailsQuery(productId);
-
   const { userInfo } = useSelector((state) => state.auth);
-
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("fr-FR").format(price);
-  };
-
   const [createReview, { isLoading: loadingProductReview }] =
     useCreateReviewMutation();
 
   const submitHandler = async (e) => {
     e.preventDefault();
-
     try {
-      await createReview({
-        productId,
-        rating,
-        comment,
-      }).unwrap();
+      await createReview({ productId, rating, comment }).unwrap();
       refetch();
-      toast.success("Produit évalué avec succès");
+      toast.success("Avis soumis avec succès");
     } catch (error) {
       toast.error(error?.data || error.message);
     }
@@ -72,84 +71,119 @@ const ProductDetails = () => {
   };
 
   return (
-    <div className="w-full px-[1rem] md:px-[10rem]">
-      <div>
-        <Link to="/" className=" font-semibold hover:underline">
-          Retour
+    <div className="min-h-screen bg-stone-50">
+      <div className="max-w-[1200px] mx-auto px-5 lg:px-10 py-8">
+        {/* Back */}
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-sm text-stone-400 hover:text-stone-700 transition-colors mb-8"
+        >
+          <FiArrowLeft size={15} /> Retour
         </Link>
-      </div>
 
-      {isLoading ? (
-        <Loader />
-      ) : error ? (
-        <Message variant="danger">
-          {error?.data?.message || error.message}
-        </Message>
-      ) : (
-        <div className="w-full relative">
-          <div className="mt-[2rem] ">
-            <div className="flex flex-col lg:flex-row w-full">
-              <div className="">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="flex-1 w-full md:w-[30rem] md:h-[40rem] object-cover mr-[2rem]"
-                />
-
-                <HeartIcon product={product} />
+        {isLoading ? (
+          <div className="flex justify-center py-24">
+            <Loader />
+          </div>
+        ) : error ? (
+          <Message variant="danger">
+            {error?.data?.message || error.message}
+          </Message>
+        ) : (
+          <>
+            {/* ── Product section ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-16">
+              {/* Image */}
+              <div className="relative">
+                <div className="overflow-hidden rounded-2xl bg-stone-100 border border-stone-200 aspect-square">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="absolute top-4 right-4">
+                  <HeartIcon product={product} />
+                </div>
               </div>
 
-              <div className="flex-1 flex flex-col justify-between">
-                <h2 className="text-2xl font-semibold">{product.name}</h2>
-                <p className="my-4 w-full text-[#B0B0B0]">
-                  {product.description}
-                </p>
-
-                <p className="text-5xl my-4 font-extrabold">
-                  {formatPrice(product.price)} F CFA
-                </p>
-
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between md:w-[20rem]">
-                  <div className="flex-1 flex flex-col">
-                    <h1 className="flex items-center mb-6">
-                      <FaStore className="mr-2" /> Marque: {product.brand}
-                    </h1>
-                    <h1 className="flex items-center mb-6 w-[20rem]">
-                      <FaClock className="mr-2 " /> Ajouté:{" "}
-                      {moment(product.createdAt).fromNow()}
-                    </h1>
-                    <h1 className="flex items-center mb-6">
-                      <FaStar className="mr-2 " /> Avis: {product.numReviews}
-                    </h1>
-                  </div>
-
-                  <div className="flex-1 flex flex-col">
-                    <h1 className="flex  md:items-center mb-6">
-                      <FaStar className="mr-2 " /> Note: {rating}
-                    </h1>
-                    <h1 className="flex items-center mb-6">
-                      <FaShoppingCart className="mr-2 " /> Quantité:{" "}
-                      {product.quantity}
-                    </h1>
-                    <h1 className="flex items-center mb-6 w-[10rem]">
-                      <FaBox className="mr-2 " /> En Stock:{" "}
-                      {product.countInStock}
-                    </h1>
+              {/* Info */}
+              <div className="flex flex-col gap-5">
+                {/* Name & brand */}
+                <div>
+                  {product.brand && (
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--primary)] font-medium mb-2">
+                      {product.brand}
+                    </p>
+                  )}
+                  <h1 className="text-2xl font-semibold text-stone-800 leading-snug">
+                    {product.name}
+                  </h1>
+                  <div className="mt-2">
+                    <Ratings
+                      value={product.rating}
+                      text={`${product.numReviews} avis`}
+                    />
                   </div>
                 </div>
 
-                <div className="flex justify-between flex-wrap md:w-full">
-                  <Ratings
-                    value={product.rating}
-                    text={`${product.numReviews} Avis`}
-                  />
+                {/* Price */}
+                <div className="py-4 border-y border-stone-100">
+                  <p className="text-3xl font-bold text-stone-800">
+                    {formatPrice(product.price)}
+                    <span className="text-lg font-medium text-stone-400 ml-2">
+                      F CFA
+                    </span>
+                  </p>
+                </div>
 
-                  {product.countInStock > 0 && (
-                    <div>
+                {/* Description */}
+                <p className="text-sm text-stone-500 leading-relaxed">
+                  {product.description}
+                </p>
+
+                {/* Meta grid */}
+                <div className="grid grid-cols-2 gap-3 bg-white border border-stone-200 rounded-2xl p-4">
+                  <MetaItem
+                    icon={FaStore}
+                    label="Marque"
+                    value={product.brand}
+                  />
+                  <MetaItem
+                    icon={FiStar}
+                    label="Note"
+                    value={`${Math.round(product.rating)} / 5`}
+                  />
+                  <MetaItem
+                    icon={FiClock}
+                    label="Ajouté"
+                    value={moment(product.createdAt).fromNow()}
+                  />
+                  <MetaItem
+                    icon={FiStar}
+                    label="Avis"
+                    value={product.numReviews}
+                  />
+                  <MetaItem
+                    icon={FiShoppingCart}
+                    label="Quantité"
+                    value={product.quantity}
+                  />
+                  <MetaItem
+                    icon={FiPackage}
+                    label="En stock"
+                    value={product.countInStock}
+                  />
+                </div>
+
+                {/* Add to cart */}
+                <div className="flex items-center gap-3 pt-2">
+                  {product.countInStock > 0 ? (
+                    <>
                       <select
                         value={qty}
-                        onChange={(e) => setQty(e.target.value)}
-                        className="p-2 w-[6rem] rounded "
+                        onChange={(e) => setQty(Number(e.target.value))}
+                        className="px-3 py-2.5 text-sm border border-stone-200 rounded-xl bg-stone-50 text-stone-700 outline-none focus:border-[var(--primary)] transition-colors"
                       >
                         {[...Array(product.countInStock).keys()].map((x) => (
                           <option key={x + 1} value={x + 1}>
@@ -157,23 +191,25 @@ const ProductDetails = () => {
                           </option>
                         ))}
                       </select>
-                    </div>
+                      <button
+                        onClick={addToCartHandler}
+                        className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-sm font-semibold transition-colors"
+                      >
+                        <FiShoppingCart size={15} />
+                        Ajouter au panier
+                      </button>
+                    </>
+                  ) : (
+                    <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-stone-100 text-stone-400 text-sm font-medium">
+                      Rupture de stock
+                    </span>
                   )}
-                </div>
-
-                <div className="btn-container">
-                  <button
-                    onClick={addToCartHandler}
-                    disabled={product.countInStock === 0}
-                    className="bg-orange-500 text-white py-2 px-4 rounded mt-4 md:mt-0"
-                  >
-                    Ajouter au panier
-                  </button>
                 </div>
               </div>
             </div>
 
-            <div className="mt-[5rem] flex flex-wrap w-full items-start justify-between ">
+            {/* ── Tabs section ── */}
+            <div className="bg-white border border-stone-200 rounded-2xl shadow-sm p-6">
               <ProductTabs
                 loadingProductReview={loadingProductReview}
                 userInfo={userInfo}
@@ -185,9 +221,9 @@ const ProductDetails = () => {
                 product={product}
               />
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 };

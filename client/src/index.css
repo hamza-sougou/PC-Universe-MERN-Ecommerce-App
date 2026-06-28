@@ -16,6 +16,7 @@
   --border: rgba(15, 23, 42, 0.08);
 
   --light-bg: rgba(99, 102, 241, 0.08);
+  --light-bg-hover: rgba(99, 102, 241, 0.12);
 }
 
 html {
@@ -23,10 +24,10 @@ html {
 }
 
 body {
-  background:
+  /* background:
     radial-gradient(circle at top left, rgba(99, 102, 241, 0.12), transparent 40%),
     radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.08), transparent 35%),
-    var(--background);
+    var(--background); */
 
   color: var(--foreground);
   min-height: 100vh;

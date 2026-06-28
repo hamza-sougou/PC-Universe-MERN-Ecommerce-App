@@ -110,7 +110,7 @@ const Header = () => {
                     Nos best-sellers
                   </h2>
                 </div>
-                <span className="rounded-full bg-[var(--primary)/10] border border-[var(--primary)/20] px-3 py-1 text-xs font-medium text-[var(--primary)]">
+                <span className="rounded-full bg-[var(--light-bg)] px-3 py-1 text-xs font-medium text-[var(--primary)]">
                   Top 3
                 </span>
               </div>
@@ -120,7 +120,7 @@ const Header = () => {
                   <Link
                     key={product._id}
                     to={`/product/${product._id}`}
-                    className="group flex items-center gap-3 rounded-xl border border-stone-100 p-3 hover:border-[var(--primary)] hover:bg-[var(--primary)/10] transition-all"
+                    className="group flex items-center gap-3 rounded-xl bg-[var(--light-bg)] p-3 hover:bg-[var(--light-bg-hover)] transition-all"
                   >
                     <span className="shrink-0 w-6 text-center text-xs font-bold text-stone-300">
                       {index + 1}

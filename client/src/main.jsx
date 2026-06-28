@@ -23,6 +23,7 @@ import AdminDashboard from "./pages/Admin/AdminDashboard.jsx";
 
 import Home from "./pages/Home.jsx";
 import Favorites from "./pages/Products/Favorites.jsx";
+import CategoryPage from "./pages/Products/CategoryPage.jsx";
 import ProductDetails from "./pages/Products/ProductDetails.jsx";
 import Cart from "./pages/Cart.jsx";
 import Shop from "./pages/Shop.jsx";
@@ -41,6 +42,7 @@ const router = createBrowserRouter(
       <Route path="/register" element={<Register />} />
       <Route index={true} path="/" element={<Home />} />
       <Route path="/favorite" element={<Favorites />} />
+      <Route path="/category/:categoryId" element={<CategoryPage />} />
       <Route path="/product/:id" element={<ProductDetails />} />
       <Route path="/cart" element={<Cart />} />
       <Route path="/shop" element={<Shop />} />

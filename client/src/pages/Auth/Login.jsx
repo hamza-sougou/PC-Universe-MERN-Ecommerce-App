@@ -5,9 +5,11 @@ import { useLoginMutation } from "../../redux/api/usersApiSlice";
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { toast } from "react-toastify";
 import Loader from "../../components/Loader";
-import { IoMdEye, IoMdEyeOff } from "react-icons/io";
+import { FiEye, FiEyeOff, FiArrowRight } from "react-icons/fi";
+import logo from "../../assets/logo.svg";
 
-import pcu_logo from "../../assets/pcu_logo.svg";
+const inputClass =
+  "w-full px-4 py-3 text-sm text-stone-800 bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 transition-all placeholder-stone-400";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -16,28 +18,19 @@ const Login = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const [login, { isLoading }] = useLoginMutation();
-
   const { userInfo } = useSelector((state) => state.auth);
-
   const { search } = useLocation();
-
-  const sp = new URLSearchParams(search);
-
-  const redirect = sp.get("redirect") || "/";
+  const redirect = new URLSearchParams(search).get("redirect") || "/";
 
   useEffect(() => {
-    if (userInfo) {
-      navigate(redirect);
-    }
+    if (userInfo) navigate(redirect);
   }, [navigate, redirect, userInfo]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
       const res = await login({ email, password }).unwrap();
-      console.log(res);
       dispatch(setCredentials({ ...res }));
     } catch (error) {
       toast.error(error?.data?.message || error.message);
@@ -45,78 +38,106 @@ const Login = () => {
   };
 
   return (
-    <div className="flex bg-white h-screen w-full -my-[1rem] items-center justify-center">
-      <div className="flex flex-col w-full lg:w-1/3 bg-orange-50 p-[3rem] justify-between gap-6">
-        <div className="flex w-full h-[5rem] justify-center">
-          <img src={pcu_logo} alt="logo" />
-        </div>
-        <div className="w-full flex flex-col">
-          <h2 className="text-3xl font-semibold mb-2">Se connecter</h2>
-          <h3 className="mb-2">
-            <i>C&apos;est vite fait !</i>
-          </h3>
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center px-5">
+      <div className="w-full max-w-sm">
+        {/* Logo */}
+        <div className="flex justify-center mb-8">
+          <img src={logo} alt="Jayma" className="h-10" />
         </div>
 
-        <form action="" onSubmit={submitHandler}>
-          <div className="w-full flex flex-col">
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full py-4 my-2 bg-transparent text-black border-b focus:border-b-2
-             border-orange-500 focus:border-orange-500 border-t-0 border-l-0 border-r-0
-              outline-none focus:outline-none  focus:ring-0"
-              placeholder="Adresse Email"
-            />
-            <div className="relative">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-semibold text-stone-800 mb-1">
+            Bon retour !
+          </h1>
+          <p className="text-sm text-stone-400">
+            Connectez-vous à votre compte Jayma.
+          </p>
+        </div>
+
+        {/* Card */}
+        <div className="bg-white border border-stone-200 rounded-2xl shadow-sm p-6">
+          <form onSubmit={submitHandler} className="flex flex-col gap-4">
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wide text-stone-400 mb-1.5">
+                Adresse email
+              </label>
               <input
-                type={isVisiblePassword ? "text" : "password"}
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full py-4 my-2 bg-transparent text-black border-b focus:border-b-2
-             border-orange-500 focus:border-orange-500 border-t-0 border-l-0 border-r-0
-              outline-none focus:outline-none  focus:ring-0"
-                placeholder="Mot de passe"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={inputClass}
+                placeholder="vous@exemple.com"
+                required
               />
-              <div
-                onClick={() => setVisiblePassword(!isVisiblePassword)}
-                className="absolute text-2xl top-[1.6rem] right-4"
-              >
-                {isVisiblePassword ? <IoMdEye /> : <IoMdEyeOff />}
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wide text-stone-400 mb-1.5">
+                Mot de passe
+              </label>
+              <div className="relative">
+                <input
+                  type={isVisiblePassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={inputClass + " pr-12"}
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setVisiblePassword(!isVisiblePassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors"
+                >
+                  {isVisiblePassword ? (
+                    <FiEyeOff size={16} />
+                  ) : (
+                    <FiEye size={16} />
+                  )}
+                </button>
+              </div>
+              <div className="flex justify-end mt-1.5">
+                <button
+                  type="button"
+                  className="text-xs text-stone-400 hover:text-[var(--primary)] transition-colors"
+                >
+                  Mot de passe oublié ?
+                </button>
               </div>
             </div>
-          </div>
 
-          <div className="w-full flex flex-col my-4">
             <button
-              disabled={isLoading}
               type="submit"
-              className="w-full bg-black text-white p-4 text-center flex items-center justify-center"
+              disabled={isLoading}
+              className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-sm font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed mt-1"
             >
-              {isLoading ? "Connexion..." : "Se connecter"}
+              {isLoading ? (
+                "Connexion..."
+              ) : (
+                <>
+                  Se connecter <FiArrowRight size={14} />
+                </>
+              )}
             </button>
-            {isLoading && <Loader />}
-          </div>
-        </form>
 
-        <div className="w-full flex items-center justify-center">
-          <p>
-            Pas encore de compte?{" "}
-            <Link
-              to="/register"
-              className="text-orange-500 hover:underline underline-offset-2 cursor-pointer"
-            >
-              Inscrivez-vous!
-            </Link>
-          </p>
+            {isLoading && (
+              <div className="flex justify-center">
+                <Loader />
+              </div>
+            )}
+          </form>
         </div>
-        <div className="w-full flex justify-center items-center">
-          <p className="text-sm font-medium whitespace-nowrap cursor-pointer underline underline-offset-2">
-            Mot de passe oublié?
-          </p>
-        </div>
+
+        <p className="text-center text-sm text-stone-400 mt-5">
+          Pas encore de compte ?{" "}
+          <Link
+            to={`/register?redirect=${redirect}`}
+            className="text-[var(--primary)] font-medium hover:underline"
+          >
+            Inscrivez-vous
+          </Link>
+        </p>
       </div>
     </div>
   );

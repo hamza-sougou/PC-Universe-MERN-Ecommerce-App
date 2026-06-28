@@ -1,13 +1,32 @@
 import { Link } from "react-router-dom";
-import "./Navigation.css";
 import { useNavigate } from "react-router-dom";
 import { useLogoutMutation } from "../../redux/api/usersApiSlice";
 import { logout } from "../../redux/features/auth/authSlice";
 import { useDispatch, useSelector } from "react-redux";
+import {
+  FiUser,
+  FiShoppingBag,
+  FiHelpCircle,
+  FiLogOut,
+  FiGrid,
+  FiBox,
+  FiTag,
+  FiList,
+  FiUsers,
+} from "react-icons/fi";
+
+const NavLink = ({ to, icon: Icon, label }) => (
+  <Link
+    to={to}
+    className="flex items-center gap-3 px-4 py-2.5 text-sm text-stone-600 hover:bg-stone-50 hover:text-stone-900 transition-colors"
+  >
+    <Icon size={14} className="text-stone-400 shrink-0" />
+    {label}
+  </Link>
+);
 
 const DropdownProfile = () => {
   const { userInfo } = useSelector((state) => state.auth);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [logoutApiCall] = useLogoutMutation();
@@ -23,66 +42,78 @@ const DropdownProfile = () => {
   };
 
   return (
-    <div className="flex flex-col dropdownProfile">
+    <div className="w-52 bg-white border border-stone-200 rounded-2xl shadow-lg overflow-hidden py-2">
       {!userInfo ? (
-        <div>
+        <div className="px-4 py-3 flex flex-col gap-2">
           <Link to="/login">
-            <button className="w-full py-2 rounded bg-black text-white mb-3">
+            <button className="w-full py-2 rounded-full bg-stone-900 text-white text-sm font-semibold hover:bg-stone-700 transition-colors">
               Connexion
             </button>
           </Link>
-
           <Link to="/register">
-            <button className="w-full py-2 rounded bg-orange-500 text-white">
+            <button className="w-full py-2 rounded-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-sm font-semibold transition-colors">
               Inscription
             </button>
           </Link>
-
-          <hr className="mt-3 mb-1" />
         </div>
       ) : (
         <>
+          {/* User info */}
+          <div className="px-4 py-3 border-b border-stone-100">
+            <p className="text-xs font-semibold text-stone-800 truncate">
+              {userInfo.username}
+            </p>
+            <p className="text-[11px] text-stone-400 truncate">
+              {userInfo.email}
+            </p>
+          </div>
+
+          {/* User links */}
           {!userInfo.isAdmin && (
-            <ul className="flex flex-col ">
-              <Link to="/profile">
-                <li className="hover:bg-orange-200 py-2 pl-3">Profil</li>
-              </Link>
-              <Link to="/user-orders">
-                <li className="hover:bg-orange-200 py-2 pl-3">Mes commandes</li>
-              </Link>
-              <Link to="/" aria-disabled>
-                <li className="hover:bg-orange-200 py-2 pl-3">
-                  Aide & Contact
-                </li>
-              </Link>
-            </ul>
+            <div className="py-1">
+              <NavLink to="/profile" icon={FiUser} label="Mon profil" />
+              <NavLink
+                to="/user-orders"
+                icon={FiShoppingBag}
+                label="Mes commandes"
+              />
+              <NavLink to="/" icon={FiHelpCircle} label="Aide & Contact" />
+            </div>
           )}
 
+          {/* Admin links */}
           {userInfo.isAdmin && (
-            <ul className="flex flex-col ">
-              <Link to="/admin/dashboard">
-                <li className="hover:bg-orange-200 py-2 pl-3">
-                  Tableau de bord
-                </li>
-              </Link>
-              <Link to="/admin/productlist">
-                <li className="hover:bg-orange-200 py-2 pl-3">Produits</li>
-              </Link>
-              <Link to="/admin/categorylist">
-                <li className="hover:bg-orange-200 py-2 pl-3">Catégories</li>
-              </Link>
-              <Link to="/admin/orderlist">
-                <li className="hover:bg-orange-200 py-2 pl-3">Commandes</li>
-              </Link>
-              <Link to="/admin/userlist">
-                <li className="hover:bg-orange-200 py-2 pl-3">Utilisateurs</li>
-              </Link>
-            </ul>
+            <div className="py-1">
+              <p className="px-4 pt-2 pb-1 text-[10px] font-medium uppercase tracking-widest text-stone-400">
+                Administration
+              </p>
+              <NavLink
+                to="/admin/dashboard"
+                icon={FiGrid}
+                label="Tableau de bord"
+              />
+              <NavLink to="/admin/productlist" icon={FiBox} label="Produits" />
+              <NavLink
+                to="/admin/categorylist"
+                icon={FiTag}
+                label="Catégories"
+              />
+              <NavLink to="/admin/orderlist" icon={FiList} label="Commandes" />
+              <NavLink
+                to="/admin/userlist"
+                icon={FiUsers}
+                label="Utilisateurs"
+              />
+            </div>
           )}
 
-          <div>
-            <hr className="pb-1" />
-            <button onClick={logoutHandler} className="text-orange-600 pl-3">
+          {/* Logout */}
+          <div className="border-t border-stone-100 mt-1 pt-1">
+            <button
+              onClick={logoutHandler}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+            >
+              <FiLogOut size={14} className="shrink-0" />
               Déconnexion
             </button>
           </div>

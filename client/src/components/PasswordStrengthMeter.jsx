@@ -1,91 +1,76 @@
-import { FaCheck } from "react-icons/fa";
-import { GrFormClose } from "react-icons/gr";
+import { FiCheck, FiX } from "react-icons/fi";
 
-const PasswordCriteria = ({ password }) => {
-  const criteria = [
-    { label: "Au moins 6 caractères", met: password.length >= 7 },
-    { label: "Doit contenir une majuscule", met: /[A-Z]/.test(password) },
-    { label: "Doit contenir une minuscule", met: /[a-z]/.test(password) },
-    { label: "Doit contenir un nombre", met: /\d/.test(password) },
-    {
-      label: "Doit contenir un caractère spécial",
-      met: /[^A-Za-z0-9]/.test(password),
-    },
-  ];
+const criteria = [
+  { label: "Au moins 6 caractères", test: (p) => p.length >= 6 },
+  { label: "Une majuscule", test: (p) => /[A-Z]/.test(p) },
+  { label: "Une minuscule", test: (p) => /[a-z]/.test(p) },
+  { label: "Un chiffre", test: (p) => /\d/.test(p) },
+  { label: "Un caractère spécial", test: (p) => /[^A-Za-z0-9]/.test(p) },
+];
 
-  return (
-    <div className="mt-2 space-y-1 ">
-      {criteria.map((c) => (
-        <div key={c.label} className="flex items-center text-xs">
-          {c.met ? (
-            <div className="flex w-[2rem] h-[1rem] justify-center items-center">
-              <FaCheck className="flex size-3 text-green-500 mr-2" />
-            </div>
-          ) : (
-            <div className="flex w-[2rem] justify-center items-center">
-              <GrFormClose className="flex size-4 text-gray-500 mr-2" />
-            </div>
-          )}
-          <span
-            className={
-              c.met ? "text-md text-green-500" : "text-md text-gray-500"
-            }
-          >
-            {c.label}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-};
+const getStrength = (p) => criteria.filter((c) => c.test(p)).length;
+
+const strengthConfig = [
+  { label: "Très faible", color: "bg-red-500", text: "text-red-500" },
+  { label: "Faible", color: "bg-orange-400", text: "text-orange-400" },
+  { label: "Moyen", color: "bg-amber-400", text: "text-amber-400" },
+  { label: "Bon", color: "bg-lime-500", text: "text-lime-500" },
+  { label: "Excellent", color: "bg-emerald-500", text: "text-emerald-500" },
+];
 
 const PasswordStrengthMeter = ({ password }) => {
-  const getStrength = (pass) => {
-    let strength = 0;
-    if (pass.length >= 6) strength++;
-    if (pass.match(/[a-z]/) && pass.match(/[A-Z]/)) strength++;
-    if (pass.match(/\d/)) strength++;
-    if (pass.match(/[^a-zA-Z\d]/)) strength++;
-    return strength;
-  };
+  if (!password) return null;
+
   const strength = getStrength(password);
-
-  const getColor = (strength) => {
-    if (strength === 0) return "bg-red-500";
-    if (strength === 1) return "bg-red-400";
-    if (strength === 2) return "bg-yellow-500";
-    if (strength === 3) return "bg-yellow-400";
-    return "bg-green-500";
-  };
-
-  const getStrengthText = (strength) => {
-    if (strength === 0) return "Très Faible";
-    if (strength === 1) return "Failble";
-    if (strength === 2) return "Moyen ";
-    if (strength === 3) return "Bon";
-    return "Excellent";
-  };
+  const config = strengthConfig[Math.min(strength, 4)];
 
   return (
-    <div className="mt-2">
-      <div className="flex justify-between items-center mb-1">
-        <span className="text-xs text-gray-400">Sécurité du mot de passe</span>
-        <span className="text-xs text-gray-400">
-          {getStrengthText(strength)}
+    <div className="mt-3 flex flex-col gap-2">
+      {/* Bar */}
+      <div className="flex items-center gap-2">
+        <div className="flex gap-1 flex-1">
+          {[...Array(5)].map((_, i) => (
+            <div
+              key={i}
+              className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                i < strength ? config.color : "bg-stone-200"
+              }`}
+            />
+          ))}
+        </div>
+        <span className={`text-[11px] font-medium shrink-0 ${config.text}`}>
+          {config.label}
         </span>
       </div>
 
-      <div className="flex space-x-1">
-        {[...Array(4)].map((_, index) => (
-          <div
-            key={index}
-            className={`h-1 w-1/4 rounded-full transition-colors duration-300
-                ${index < strength ? getColor(strength) : "bg-gray-600"}
-                `}
-          />
-        ))}
+      {/* Criteria */}
+      <div className="grid grid-cols-1 gap-1">
+        {criteria.map((c) => {
+          const met = c.test(password);
+          return (
+            <div key={c.label} className="flex items-center gap-2">
+              <div
+                className={`w-4 h-4 flex items-center justify-center rounded-full shrink-0 ${
+                  met
+                    ? "bg-emerald-100 text-emerald-600"
+                    : "bg-stone-100 text-stone-400"
+                }`}
+              >
+                {met ? (
+                  <FiCheck size={9} strokeWidth={3} />
+                ) : (
+                  <FiX size={9} strokeWidth={3} />
+                )}
+              </div>
+              <span
+                className={`text-xs ${met ? "text-emerald-600" : "text-stone-400"}`}
+              >
+                {c.label}
+              </span>
+            </div>
+          );
+        })}
       </div>
-      <PasswordCriteria password={password} />
     </div>
   );
 };
