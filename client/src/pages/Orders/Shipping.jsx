@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { FaPaypal } from "react-icons/fa";
 import {
   saveShippingAddress,
   savePaymentMethod,
 } from "../../redux/features/cart/cartSlice";
 import ProgressSteps from "../../components/ProgressSteps";
+import waveLogo from "../../assets/wave_logo.jfif";
+import orangeMoneyLogo from "../../assets/orange_money_logo.png";
 
 const inputClass =
   "w-full px-4 py-2.5 text-sm text-stone-800 bg-stone-50 border border-stone-200 rounded-xl outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 transition-all placeholder-stone-400";
@@ -134,12 +137,63 @@ const Shipping = () => {
                     onChange={(e) => setPaymentMethod(e.target.value)}
                     className="accent-[var(--primary)] w-4 h-4"
                   />
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-stone-200">
+                      <FaPaypal className="text-[1.2rem] text-sky-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-stone-700">
+                        PayPal
+                      </p>
+                      <p className="text-xs text-stone-400">
+                        PayPal ou carte de crédit
+                      </p>
+                    </div>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 p-4 border border-stone-200 rounded-xl bg-stone-50 text-stone-400 cursor-not-allowed mt-4">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="Wave"
+                    disabled
+                    className="w-4 h-4 text-stone-300"
+                  />
+                  <img
+                    src={waveLogo}
+                    alt="Wave"
+                    className="w-10 h-10 rounded-full bg-white p-1 border border-stone-200"
+                  />
                   <div>
-                    <p className="text-sm font-semibold text-stone-700">
-                      PayPal
+                    <p className="text-sm font-semibold text-stone-500">Wave</p>
+                    <p className="text-xs text-stone-400">
+                      Bientôt disponible — intégration Mobile Money en
+                      préparation.
+                    </p>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 p-4 border border-stone-200 rounded-xl bg-stone-50 text-stone-400 cursor-not-allowed mt-4">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="OrangeMoney"
+                    disabled
+                    className="w-4 h-4 text-stone-300"
+                  />
+                  <img
+                    src={orangeMoneyLogo}
+                    alt="Orange Money"
+                    className="w-10 h-10 rounded-full bg-white p-1 border border-stone-200"
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-stone-500">
+                      Orange Money
                     </p>
                     <p className="text-xs text-stone-400">
-                      PayPal ou carte de crédit
+                      Bientôt disponible — intégration Mobile Money en
+                      préparation.
                     </p>
                   </div>
                 </label>

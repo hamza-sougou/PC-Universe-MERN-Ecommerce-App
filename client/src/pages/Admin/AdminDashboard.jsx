@@ -12,7 +12,7 @@ import Loader from "../../components/Loader";
 import { FiTrendingUp, FiUsers, FiShoppingBag } from "react-icons/fi";
 
 const StatCard = ({ icon: Icon, label, value, isLoading }) => (
-  <div className="flex-1 min-w-[160px] bg-white border border-stone-200 rounded-2xl p-5 shadow-sm">
+  <div className="flex-1 min-w-[160px] bg-[var(--light-bg)]  rounded-2xl p-5 shadow-sm">
     <div className="w-9 h-9 flex items-center justify-center rounded-xl bg-[var(--primary)]/10 mb-4">
       <Icon size={16} className="text-[var(--primary)]" />
     </div>
@@ -100,7 +100,6 @@ const AdminDashboard = () => {
           <h1 className="text-2xl font-semibold text-stone-800">Dashboard</h1>
         </div>
 
-        {/* Stat cards */}
         <div className="flex flex-wrap gap-4 mb-8">
           <StatCard
             icon={FiTrendingUp}
@@ -123,7 +122,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Chart */}
-        <div className="bg-white border border-stone-200 rounded-2xl shadow-sm p-6 mb-8">
+        <div className="bg-[var(--light-bg)] border border-stone-200 rounded-2xl shadow-sm p-6 mb-8">
           <div className="mb-4">
             <p className="text-[11px] uppercase tracking-wide text-stone-400 font-medium mb-1">
               Aperçu
@@ -135,7 +134,7 @@ const AdminDashboard = () => {
           <Chart
             options={state.options}
             series={state.series}
-            type="bar"
+            type="line"
             width="100%"
             height={280}
           />
